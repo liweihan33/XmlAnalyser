@@ -1,0 +1,276 @@
+{
+  "configuration": {
+    "reader": {
+      "type": "mysql",
+      "parameter": {
+        "dataSourceId": 32.0,
+        "connectorType": "mysql",
+        "columns": [
+          {
+            "type": "int unsigned",
+            "name": "Int_Info",
+            "description": ""
+          },
+          {
+            "type": "varchar",
+            "name": "String1",
+            "description": ""
+          },
+          {
+            "type": "text",
+            "name": "String2",
+            "description": ""
+          },
+          {
+            "type": "varchar",
+            "name": "String_Timestamp1_Info",
+            "description": ""
+          },
+          {
+            "type": "varchar",
+            "name": "String_Timestamp2_Info",
+            "description": ""
+          },
+          {
+            "type": "varchar",
+            "name": "String_Datetime1_Info",
+            "description": ""
+          },
+          {
+            "type": "varchar",
+            "name": "String_Datetime2_Info",
+            "description": ""
+          },
+          {
+            "type": "tinyint",
+            "name": "Tinyint1_Info",
+            "description": ""
+          },
+          {
+            "type": "tinyint",
+            "name": "Tinyint2_Info",
+            "description": ""
+          },
+          {
+            "type": "bigint",
+            "name": "Bigint1_Info",
+            "description": ""
+          },
+          {
+            "type": "bigint",
+            "name": "Bigint2_Info",
+            "description": ""
+          },
+          {
+            "type": "float",
+            "name": "Float1_Info",
+            "description": ""
+          },
+          {
+            "type": "float",
+            "name": "Float2_Info",
+            "description": ""
+          },
+          {
+            "type": "double",
+            "name": "Double1_Info",
+            "description": ""
+          },
+          {
+            "type": "double",
+            "name": "Double2_Info",
+            "description": ""
+          },
+          {
+            "type": "decimal",
+            "name": "Decimal1_Info",
+            "description": ""
+          },
+          {
+            "type": "decimal",
+            "name": "Decimal2_Info",
+            "description": ""
+          },
+          {
+            "type": "date",
+            "name": "Date1_Info",
+            "description": ""
+          },
+          {
+            "type": "date",
+            "name": "Date2_Info",
+            "description": ""
+          },
+          {
+            "type": "datetime",
+            "name": "Datetime1_Info",
+            "description": ""
+          },
+          {
+            "type": "timestamp",
+            "name": "Datetime2_Info",
+            "description": ""
+          },
+          {
+            "type": "bigint",
+            "name": "Timestamp1_Info",
+            "description": ""
+          },
+          {
+            "type": "bigint",
+            "name": "Timestamp2_Info",
+            "description": ""
+          }
+        ],
+        "splitKeys": [
+          "Int_Info"
+        ],
+        "dataSourceName": "MySQL_Preparation_Source",
+        "tableName": "dts_source"
+      }
+    },
+    "writer": {
+      "type": "las_volc",
+      "parameter": {
+        "partitions": [
+          {
+            "name": "date",
+            "type": "string",
+            "value": "${date}"
+          },
+          {
+            "name": "hour",
+            "type": "string",
+            "value": "${hour}"
+          }
+        ],
+        "dataSourceId": 22.0,
+        "connectorType": "las_volc",
+        "columns": [
+          {
+            "type": "int",
+            "name": "int_info",
+            "description": "test"
+          },
+          {
+            "type": "string",
+            "name": "string1",
+            "description": "test"
+          },
+          {
+            "type": "string",
+            "name": "string2",
+            "description": "test"
+          },
+          {
+            "type": "string",
+            "name": "string_timestamp1_info",
+            "description": "test"
+          },
+          {
+            "type": "string",
+            "name": "string_timestamp2_info",
+            "description": "test"
+          },
+          {
+            "type": "string",
+            "name": "string_datetime1_info",
+            "description": "test"
+          },
+          {
+            "type": "string",
+            "name": "string_datetime2_info",
+            "description": "test"
+          },
+          {
+            "type": "int",
+            "name": "tinyint1_info",
+            "description": "test"
+          },
+          {
+            "type": "int",
+            "name": "tinyint2_info",
+            "description": "test"
+          },
+          {
+            "type": "bigint",
+            "name": "bigint1_info",
+            "description": "test"
+          },
+          {
+            "type": "bigint",
+            "name": "bigint2_info",
+            "description": "test"
+          },
+          {
+            "type": "double",
+            "name": "float1_info",
+            "description": "test"
+          },
+          {
+            "type": "double",
+            "name": "float2_info",
+            "description": "test"
+          },
+          {
+            "type": "double",
+            "name": "double1_info",
+            "description": "test"
+          },
+          {
+            "type": "double",
+            "name": "double2_info",
+            "description": "test"
+          },
+          {
+            "type": "decimal(20,8)",
+            "name": "decimal1_info",
+            "description": "test"
+          },
+          {
+            "type": "decimal(20,8)",
+            "name": "decimal2_info",
+            "description": "test"
+          },
+          {
+            "type": "date",
+            "name": "date1_info",
+            "description": "test"
+          },
+          {
+            "type": "date",
+            "name": "date2_info",
+            "description": "test"
+          },
+          {
+            "type": "date",
+            "name": "datetime1_info",
+            "description": "test"
+          },
+          {
+            "type": "timestamp",
+            "name": "datetime2_info",
+            "description": "test"
+          },
+          {
+            "type": "bigint",
+            "name": "timestamp1_info",
+            "description": "test"
+          },
+          {
+            "type": "bigint",
+            "name": "timestamp2_info",
+            "description": "test"
+          }
+        ],
+        "dataSourceName": "LAS_Preparation_Source",
+        "tableName": "dts_pb_source"
+      }
+    },
+    "operator": {
+      "parameter": {}
+    },
+    "transformers": []
+  },
+  "typeGroup": "common-dts-batch"
+}

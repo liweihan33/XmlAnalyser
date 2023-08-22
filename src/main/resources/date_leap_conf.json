@@ -1,0 +1,197 @@
+{
+  "configuration": {
+    "reader": {
+      "type": "ftp",
+      "parameter": {
+        "connectorType": "ftp",
+        "columns": [
+          {
+            "type": "string",
+            "name": "ftp_c1",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "int",
+            "name": "ftp_c2",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "bigint",
+            "name": "ftp_c3",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "double",
+            "name": "ftp_c4",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "float",
+            "name": "ftp_c5",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "boolean",
+            "name": "ftp_c6",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "binary",
+            "name": "ftp_c7",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "ftp_c8",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "ftp_c9",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "ftp_c10",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "ftp_c11",
+            "description": "",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "ftp_c12",
+            "description": "",
+            "functionType": ""
+          }
+        ],
+        "successFilePath": "/data/${date}/t_order.ok",
+        "skipLines": 1,
+        "dataSourceName": "SFTP_Preparation_Source",
+        "timeOut": 5000,
+        "dataSourceId": 23,
+        "customDelimiter": "^|^",
+        "enableSuccessFileCheck": true,
+        "delimiter": "^|^",
+        "maxRetryTime": 60,
+        "sourcePath": "/data/${date}/t_order",
+        "fileFormat": "csv",
+        "charsetName": "UTF-8"
+      }
+    },
+    "writer": {
+      "type": "las_volc",
+      "parameter": {
+        "partitions": [
+          {
+            "name": "date",
+            "type": "string",
+            "value": "${date}"
+          },
+          {
+            "name": "hour",
+            "type": "string",
+            "value": "${hour}"
+          }
+        ],
+        "dataSourceId": 22,
+        "connectorType": "las_volc",
+        "columns": [
+          {
+            "type": "int",
+            "name": "int_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "string1",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "string2",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "string_timestamp1_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "string_timestamp2_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "string_datetime1_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "string",
+            "name": "string_datetime2_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "int",
+            "name": "tinyint1_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "int",
+            "name": "tinyint2_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "bigint",
+            "name": "bigint1_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "bigint",
+            "name": "bigint2_info",
+            "description": "test",
+            "functionType": ""
+          },
+          {
+            "type": "double",
+            "name": "float1_info",
+            "description": "test",
+            "functionType": ""
+          }
+        ],
+        "dataSourceName": "LAS_Preparation_Source",
+        "tableName": "auto_sftp2las_test"
+      }
+    },
+    "operator": {
+      "parameter": { }
+    },
+    "transformers": [ ]
+  },
+  "typeGroup": "common-dts-batch"
+}
+

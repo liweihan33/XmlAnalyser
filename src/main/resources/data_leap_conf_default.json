@@ -1,0 +1,31 @@
+{
+  "configuration": {
+    "reader": {
+      "type": "mysql",
+      "parameter": {
+        "dataSourceId": 0,
+        "connectorType": "mysql",
+        "columns": [],
+        "splitKeys": [],
+        "dataSourceName": "MySQL_Preparation_Source",
+        "tableName": "dts_source"
+      }
+    },
+    "writer": {
+      "type": "las_volc",
+      "parameter": {
+        "partitions": [],
+        "dataSourceId": 0,
+        "connectorType": "las_volc",
+        "columns": [],
+        "dataSourceName": "LAS_Preparation_Source",
+        "tableName": "dts_pb_source"
+      }
+    },
+    "operator": {
+      "parameter": {}
+    },
+    "transformers": []
+  },
+  "typeGroup": "common-dts-batch"
+}
