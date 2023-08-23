@@ -29,7 +29,7 @@ public class Starter {
         Path sourcePath;
         Path outputPath;
         if(args.length==0){
-            System.out.println("缺少启动参数：java -jar jarfile 源文件夹 [输出文件夹]");
+            System.out.println("缺少启动参数：java -jar jarfile 源文件夹 输出文件夹");
             return;
         }else if(args.length==1) {
             sourcePath=Paths.get(args[0]);
