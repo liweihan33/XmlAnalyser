@@ -105,7 +105,7 @@ public class SituationAnalyser {
         String jsonStr=gson.toJson(list);
         String eachFileResultStr=gson.toJson(eachFileResult);
         Path jsonPath = Paths.get(outputPath+ File.separator+"output.json");
-        Path eachFileResultJsonPath = Paths.get(outputPath+ File.separator+"eachFileResult.json");
+        Path eachFileResultJsonPath = Paths.get(outputPath+ File.separator+"each_file.json");
         try (BufferedWriter writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8)) {
             writer.write(jsonStr);
             writer.flush();
