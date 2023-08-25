@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,32 +44,45 @@ public class SituationAnalyser {
         AtomicInteger multipleTransCount=new AtomicInteger();
         AtomicInteger multipleSourceCount=new AtomicInteger();
         AtomicInteger multipleTargetCount=new AtomicInteger();
+        Map<String,Map<String,String>> eachFileResult=new HashMap<>();
         List<Transformation> allTransformations=new ArrayList<>();
-        mappingResults.forEach(result->{
-            if(result.isSuccess()){
-                successCount.incrementAndGet();
-            }else {
-                errorCount.incrementAndGet();
-            }
-            List<Transformation> transformations=result.getFolder().getMapping().getTransformations();
-            if(transformations!=null) {
-                allTransformations.addAll(transformations);
-                if (transformations.size() > 1) {
+        mappingResults.stream().collect(Collectors.groupingBy(r->r.getFolder().getNAME())).forEach((folderName,results)->{
+            Map<String,String> map=new HashMap<>();
+            eachFileResult.put(folderName,map);
+
+            results.forEach(result->{
+                String mappingName=result.getFolder().getMapping().getNAME();
+                if(result.isSuccess()){
+                    if(mappingName!=null&&!mappingName.trim().equals("")){
+                        map.put(mappingName,"成功");
+                    }
+                    successCount.incrementAndGet();
+                }else {
+                    if(mappingName!=null&&!mappingName.trim().equals("")){
+                        map.put(mappingName,"失败");
+                    }
+                    errorCount.incrementAndGet();
+                }
+                List<Transformation> transformations=result.getFolder().getMapping().getTransformations();
+                if(transformations!=null) {
+                    allTransformations.addAll(transformations);
+                    if (transformations.size() > 1) {
+                        //有多个转换的文件数量
+                        multipleTransCount.incrementAndGet();
+                    }
+                }
+                List<Instance> instances=result.getFolder().getMapping().getInstances();
+                if(instances!=null&&!instances.isEmpty()) {
+                    //有多个目标的文件数量
+                    if(instances.stream().filter(item->item.getTYPE().equals("SOURCE")).count()>1){
+                        multipleSourceCount.incrementAndGet();
+                    }
                     //有多个转换的文件数量
-                    multipleTransCount.incrementAndGet();
+                    if(instances.stream().filter(item->item.getTYPE().equals("TARGET")).count()>1){
+                        multipleTargetCount.incrementAndGet();
+                    }
                 }
-            }
-            List<Instance> instances=result.getFolder().getMapping().getInstances();
-            if(instances!=null&&!instances.isEmpty()) {
-                //有多个目标的文件数量
-                if(instances.stream().filter(item->item.getTYPE().equals("SOURCE")).count()>1){
-                    multipleSourceCount.incrementAndGet();
-                }
-                //有多个转换的文件数量
-                if(instances.stream().filter(item->item.getTYPE().equals("TARGET")).count()>1){
-                    multipleTargetCount.incrementAndGet();
-                }
-            }
+            });
         });
         Map<String,List<Transformation>> group=allTransformations.stream().collect(Collectors.groupingBy(Transformation::getTYPE));
         sb.append("总文件数量：").append(totalCount.get()).append("\n");
@@ -89,9 +103,17 @@ public class SituationAnalyser {
         Gson gson=new Gson();
         List<List<Transformation>> list=mappingResults.stream().map(result -> result.getFolder().getMapping().getTransformations()).collect(Collectors.toList());
         String jsonStr=gson.toJson(list);
+        String eachFileResultStr=gson.toJson(eachFileResult);
         Path jsonPath = Paths.get(outputPath+ File.separator+"output.json");
+        Path eachFileResultJsonPath = Paths.get(outputPath+ File.separator+"eachFileResult.json");
         try (BufferedWriter writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8)) {
             writer.write(jsonStr);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (BufferedWriter writer = Files.newBufferedWriter(eachFileResultJsonPath, StandardCharsets.UTF_8)) {
+            writer.write(eachFileResultStr);
             writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
