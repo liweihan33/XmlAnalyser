@@ -19,7 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Starter {
@@ -64,20 +66,23 @@ public class Starter {
      */
     public static void analyseCurrentSituation(Path sourcePath,Path outputPath) throws IOException {
         //开始处理
+        AtomicInteger counter=new AtomicInteger();
         List<MappingAnalyser.Result> mappingResults=Files.list(sourcePath).filter(path->path.toString().toLowerCase().endsWith(".xml")).map(path->{
             try {
+                System.out.println(counter.incrementAndGet()+"：正在解析文件 "+path);
                 MappingAnalyser mappingAnalyser=new MappingAnalyser(Files.newInputStream(path));
                 mappingAnalyser.setContinueError(true);
                 MappingAnalyser.Result result=mappingAnalyser.analyse();
-
                 return result;
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
+        System.out.println("所有文件解析完毕。");
         SituationAnalyser situationAnalyser=new SituationAnalyser(mappingResults);
-        String str=situationAnalyser.analyse(outputPath);
+        //String str=situationAnalyser.overall(outputPath);
+        String str=situationAnalyser.functionUsed(outputPath);
 
         System.out.println(str);
     }
@@ -104,9 +109,9 @@ public class Starter {
                 MappingAnalyser.Result result=mappingAnalyser.analyse();
                 if(result.isSuccess()){
                     DataLeapBuilder builder=new DataLeapBuilder(result);
-                    JsonObject jo=builder.build();
+                    Map<String,JsonObject> jos=builder.build();
                     LogUtil.outputToFile(logSuccessPath+filename+".log",result.getLogbook());
-                    outputJsonToFile(outputPath+File.separator+filename.toString().replace(".XML","").replace(".xml","")+".json",gson.toJson(jo));
+                    jos.forEach((mappingName,jo)->outputJsonToFile(outputPath+File.separator+mappingName+".json",gson.toJson(jo)));
                     System.out.println("成功 "+filename);
                 }else {
                     LogUtil.outputToFile(logErrorPath+filename+".log",result.getLogbook());

@@ -1,5 +1,7 @@
 package infor.xml.bean.informatica;
 
+import java.util.List;
+
 /**
  * Folder对象
  */
@@ -16,17 +18,17 @@ public class Folder {
     /**
      * 数据源
      */
-    private Source source;
+    private List<Source> sources;
 
     /**
      * 目标
      */
-    private Target target;
+    private List<Target> targets;
 
     /**
      * 映射对象
      */
-    private Mapping mapping;
+    private List<Mapping> mappings;
 
     public String getNAME() {
         return NAME;
@@ -84,27 +86,27 @@ public class Folder {
         this.UUID = UUID;
     }
 
-    public Source getSource() {
-        return source;
+    public List<Source> getSources() {
+        return sources;
     }
 
-    public void setSource(Source source) {
-        this.source = source;
+    public void setSources(List<Source> sources) {
+        this.sources = sources;
     }
 
-    public Target getTarget() {
-        return target;
+    public List<Target> getTargets() {
+        return targets;
     }
 
-    public void setTarget(Target target) {
-        this.target = target;
+    public void setTargets(List<Target> targets) {
+        this.targets = targets;
     }
 
-    public Mapping getMapping() {
-        return mapping;
+    public List<Mapping> getMappings() {
+        return mappings;
     }
 
-    public void setMapping(Mapping mapping) {
-        this.mapping = mapping;
+    public void setMappings(List<Mapping> mappings) {
+        this.mappings = mappings;
     }
 }

@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -32,11 +34,66 @@ public class SituationAnalyser {
      */
     private final List<MappingAnalyser.Result> mappingResults;
 
+    private final Pattern pattern = Pattern.compile("(\\w)+\\(");
+
     public SituationAnalyser(List<MappingAnalyser.Result> results) {
         this.mappingResults = results;
     }
 
-    public String analyse(Path outputPath){
+    /**
+     * 分析函数使用情况
+     * @return
+     */
+    public String functionUsed(Path outputPath){
+        List<Transformation> transformations=new ArrayList<>();
+        mappingResults.forEach(results->results.getFolder().getMappings().forEach(mapping->
+                mapping.getTransformations().stream().filter(item->item.getTYPE().equals("Expression")).forEach(transformations::add)
+        ));
+        Map<String,Integer> map=new HashMap<>();
+        transformations.forEach(transformation -> {
+            transformation.getTransformfields().forEach(filed->{
+                String expression=filed.getEXPRESSION();
+                if(expression!=null){
+                    expression=expression.replace(" ","").toLowerCase();
+                    Matcher matcher = pattern.matcher(expression);
+                    while(matcher.find()) {
+                        String str=matcher.group();
+                        Integer value=map.get(str);
+                        if(value==null){
+                            value=0;
+                        }
+                        map.put(str,++value);
+                    }
+                }
+            });
+        });
+        StringBuilder sb=new StringBuilder();
+        sb.append( "结论：").append("\n");
+        map.forEach((k,v)->{
+            sb.append(k).append("函数使用次数：").append(v).append("\n");
+        });
+        if(map.size()==0){
+            sb.append("未使用任何函数。").append("\n");
+        }
+        System.out.println(sb);
+        if(outputPath!=null){
+            Path path = Paths.get(outputPath+ File.separator+"output.log");
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+                writer.write(sb.toString());
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
+    }
+
+    /**
+     * 分析总体情况
+     * @param outputPath
+     * @return
+     */
+    public String overall(Path outputPath){
         StringBuilder sb=new StringBuilder();
         AtomicInteger totalCount=new AtomicInteger(mappingResults.size());
         AtomicInteger successCount=new AtomicInteger();
@@ -51,37 +108,39 @@ public class SituationAnalyser {
             eachFileResult.put(folderName,map);
 
             results.forEach(result->{
-                String mappingName=result.getFolder().getMapping().getNAME();
-                if(result.isSuccess()){
-                    if(mappingName!=null&&!mappingName.trim().equals("")){
-                        map.put(mappingName,"成功");
+                result.getFolder().getMappings().forEach(mapping -> {
+                    String mappingName=mapping.getNAME();
+                    if(result.isSuccess()){
+                        if(mappingName!=null&&!mappingName.trim().equals("")){
+                            map.put(mappingName,"成功");
+                        }
+                        successCount.incrementAndGet();
+                    }else {
+                        if(mappingName!=null&&!mappingName.trim().equals("")){
+                            map.put(mappingName,"失败");
+                        }
+                        errorCount.incrementAndGet();
                     }
-                    successCount.incrementAndGet();
-                }else {
-                    if(mappingName!=null&&!mappingName.trim().equals("")){
-                        map.put(mappingName,"失败");
+                    List<Transformation> transformations=mapping.getTransformations();
+                    if(transformations!=null) {
+                        allTransformations.addAll(transformations);
+                        if (transformations.size() > 1) {
+                            //有多个转换的文件数量
+                            multipleTransCount.incrementAndGet();
+                        }
                     }
-                    errorCount.incrementAndGet();
-                }
-                List<Transformation> transformations=result.getFolder().getMapping().getTransformations();
-                if(transformations!=null) {
-                    allTransformations.addAll(transformations);
-                    if (transformations.size() > 1) {
+                    List<Instance> instances=mapping.getInstances();
+                    if(instances!=null&&!instances.isEmpty()) {
+                        //有多个目标的文件数量
+                        if(instances.stream().filter(item->item.getTYPE().equals("SOURCE")).count()>1){
+                            multipleSourceCount.incrementAndGet();
+                        }
                         //有多个转换的文件数量
-                        multipleTransCount.incrementAndGet();
+                        if(instances.stream().filter(item->item.getTYPE().equals("TARGET")).count()>1){
+                            multipleTargetCount.incrementAndGet();
+                        }
                     }
-                }
-                List<Instance> instances=result.getFolder().getMapping().getInstances();
-                if(instances!=null&&!instances.isEmpty()) {
-                    //有多个目标的文件数量
-                    if(instances.stream().filter(item->item.getTYPE().equals("SOURCE")).count()>1){
-                        multipleSourceCount.incrementAndGet();
-                    }
-                    //有多个转换的文件数量
-                    if(instances.stream().filter(item->item.getTYPE().equals("TARGET")).count()>1){
-                        multipleTargetCount.incrementAndGet();
-                    }
-                }
+                });
             });
         });
         Map<String,List<Transformation>> group=allTransformations.stream().collect(Collectors.groupingBy(Transformation::getTYPE));
@@ -93,31 +152,35 @@ public class SituationAnalyser {
         sb.append("有多个转换的文件数量：").append(multipleTransCount.get()).append("\n");
         group.forEach((k,v)-> sb.append("转换类型为").append(k).append("的数量：").append(v.size()).append("\n"));
 
-        Path path = Paths.get(outputPath+ File.separator+"output.log");
-        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            writer.write(sb.toString());
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        //输出至文件
+        if(outputPath!=null){
+            Path path = Paths.get(outputPath+ File.separator+"output.log");
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+                writer.write(sb.toString());
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Gson gson=new Gson();
+            /*List<List<Transformation>> list=mappingResults.stream().map(result -> result.getFolder().getMapping().getTransformations()).collect(Collectors.toList());
+            String jsonStr=gson.toJson(list);
+            Path jsonPath = Paths.get(outputPath+ File.separator+"output.json");
+            try (BufferedWriter writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8)) {
+                writer.write(jsonStr);
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
+            String eachFileResultStr=gson.toJson(eachFileResult);
+            Path eachFileResultJsonPath = Paths.get(outputPath+ File.separator+"each_file.json");
+            try (BufferedWriter writer = Files.newBufferedWriter(eachFileResultJsonPath, StandardCharsets.UTF_8)) {
+                writer.write(eachFileResultStr);
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        Gson gson=new Gson();
-        List<List<Transformation>> list=mappingResults.stream().map(result -> result.getFolder().getMapping().getTransformations()).collect(Collectors.toList());
-        String jsonStr=gson.toJson(list);
-        String eachFileResultStr=gson.toJson(eachFileResult);
-        Path jsonPath = Paths.get(outputPath+ File.separator+"output.json");
-        Path eachFileResultJsonPath = Paths.get(outputPath+ File.separator+"each_file.json");
-        try (BufferedWriter writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8)) {
-            writer.write(jsonStr);
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try (BufferedWriter writer = Files.newBufferedWriter(eachFileResultJsonPath, StandardCharsets.UTF_8)) {
-            writer.write(eachFileResultStr);
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         return sb.toString();
     }
 

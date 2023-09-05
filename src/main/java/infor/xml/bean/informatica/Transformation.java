@@ -177,6 +177,12 @@ public class Transformation {
         private String DESCRIPTION;
         private String DEFAULTVALUE;
         private String ORDER;
+        private String EXPRESSION;
+        private String EXPRESSIONTYPE;
+        private String PICTURETEXT;
+        private String PORTTYPE;
+        private String PRECISION;
+        private String SCALE;
 
         public String getNAME() {
             return NAME;
@@ -224,6 +230,54 @@ public class Transformation {
 
         public void setORDER(String ORDER) {
             this.ORDER = ORDER;
+        }
+
+        public String getEXPRESSION() {
+            return EXPRESSION;
+        }
+
+        public void setEXPRESSION(String EXPRESSION) {
+            this.EXPRESSION = EXPRESSION;
+        }
+
+        public String getEXPRESSIONTYPE() {
+            return EXPRESSIONTYPE;
+        }
+
+        public void setEXPRESSIONTYPE(String EXPRESSIONTYPE) {
+            this.EXPRESSIONTYPE = EXPRESSIONTYPE;
+        }
+
+        public String getPICTURETEXT() {
+            return PICTURETEXT;
+        }
+
+        public void setPICTURETEXT(String PICTURETEXT) {
+            this.PICTURETEXT = PICTURETEXT;
+        }
+
+        public String getPORTTYPE() {
+            return PORTTYPE;
+        }
+
+        public void setPORTTYPE(String PORTTYPE) {
+            this.PORTTYPE = PORTTYPE;
+        }
+
+        public String getPRECISION() {
+            return PRECISION;
+        }
+
+        public void setPRECISION(String PRECISION) {
+            this.PRECISION = PRECISION;
+        }
+
+        public String getSCALE() {
+            return SCALE;
+        }
+
+        public void setSCALE(String SCALE) {
+            this.SCALE = SCALE;
         }
     }
 

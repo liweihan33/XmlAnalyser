@@ -106,67 +106,74 @@ public class MappingAnalyser {
                 this.folder=convertToBean(folderE,Folder.class);
 
                 //解析source节点
-                useChild(folderE,"SOURCE",sourceE->{
-                    Source source=convertToBean(sourceE, Source.class);
-                    useChildren(sourceE,"SOURCEFIELD",sourcefieldsE->{
-                        source.setSourcefields(sourcefieldsE.stream().map(element -> convertToBean(element, Source.Sourcefield.class)).collect(Collectors.toList()));
-                        logbook.success("解析SOURCEFIELD节点");
-                    });
-                    this.folder.setSource(source);
+                useChildren(folderE,"SOURCE",sourcesE->{
+                    this.folder.setSources(sourcesE.stream().map(sourceE->{
+                        Source source=convertToBean(sourceE, Source.class);
+                        useChildren(sourceE,"SOURCEFIELD",sourcefieldsE->{
+                            source.setSourcefields(sourcefieldsE.stream().map(element -> convertToBean(element, Source.Sourcefield.class)).collect(Collectors.toList()));
+                            logbook.success("解析SOURCEFIELD节点");
+                        });
+                        return source;
+                    }).collect(Collectors.toList()));
                     logbook.success("解析SOURCE节点");
                 });
 
                 //解析target节点
-                useChild(folderE,"TARGET",targetE->{
-                    Target target=convertToBean(targetE, Target.class);
-                    useChildren(targetE,"TARGETFIELD",targetfieldsE->{
-                        target.setTargetfields(targetfieldsE.stream().map(element -> convertToBean(element, Target.Targetfield.class)).collect(Collectors.toList()));
-                        logbook.success("解析TARGETFIELD节点");
-                    });
-                    this.folder.setTarget(target);
+                useChildren(folderE,"TARGET",targetsE->{
+                    this.folder.setTargets(targetsE.stream().map(targetE->{
+                        Target target=convertToBean(targetE, Target.class);
+                        useChildren(targetE,"TARGETFIELD",targetfieldsE->{
+                            target.setTargetfields(targetfieldsE.stream().map(element -> convertToBean(element, Target.Targetfield.class)).collect(Collectors.toList()));
+                            logbook.success("解析TARGETFIELD节点");
+                        });
+                        return target;
+                    }).collect(Collectors.toList()));
                     logbook.success("解析TARGET节点");
                 });
 
                 //解析mapping节点
-                useChild(folderE,"MAPPING",mappingE->{
-                    Mapping mapping=convertToBean(mappingE,Mapping.class);
-                    this.folder.setMapping(mapping);
-                    //解析TRANSFORMATION节点
-                    useChildren(mappingE,"TRANSFORMATION",transformationsE->{
-                        if(transformationsE.size()>1||!TransformationType.SOURCE_QUALIFIER.getValue().equals(transformationsE.get(0).attribute("TYPE").getValue())){
-                            logbook.seriousError("解析TRANSFORMATION节点","目前只支持单个转换实例，且类型必须为Source Qualifier");
-                            if(!continueError) {
-                                return;
+                useChildren(folderE,"MAPPING",mappingsE->{
+
+                    this.folder.setMappings(mappingsE.stream().map(mappingE->{
+                        Mapping mapping=convertToBean(mappingE,Mapping.class);
+                        //解析TRANSFORMATION节点
+                        useChildren(mappingE,"TRANSFORMATION",transformationsE->{
+                            if(transformationsE.size()>1||!TransformationType.SOURCE_QUALIFIER.getValue().equals(transformationsE.get(0).attribute("TYPE").getValue())){
+                                logbook.seriousError("解析TRANSFORMATION节点","目前只支持单个转换实例，且类型必须为Source Qualifier");
+                                if(!continueError) {
+                                    return;
+                                }
                             }
-                        }
-                        mapping.setTransformations(transformationsE.stream().map(transformationE->{
-                            Transformation transformation=convertToBean(transformationE, Transformation.class);
-                            //设置转换的字段信息
-                            useChildren(transformationE,"TRANSFORMFIELD",transformfieldsE->{
-                                transformation.setTransformfields(transformfieldsE.stream().map(element -> convertToBean(element, Transformation.Transformfield.class)).collect(Collectors.toList()));
-                                logbook.success("解析TRANSFORMFIELD节点");
-                            });
-                            //设置转换的属性信息
-                            useChildren(transformationE,"TABLEATTRIBUTE",tableattributesE->{
-                                transformation.setTableattributes(tableattributesE.stream().map(element -> convertToBean(element, Transformation.Tableattribute.class)).collect(Collectors.toList()));
-                                logbook.success("解析TABLEATTRIBUTE节点");
-                            });
-                            return transformation;
-                        }).collect(Collectors.toList()));
-                        logbook.success("解析TRANSFORMATION节点");
-                    });
+                            mapping.setTransformations(transformationsE.stream().map(transformationE->{
+                                Transformation transformation=convertToBean(transformationE, Transformation.class);
+                                //设置转换的字段信息
+                                useChildren(transformationE,"TRANSFORMFIELD",transformfieldsE->{
+                                    transformation.setTransformfields(transformfieldsE.stream().map(element -> convertToBean(element, Transformation.Transformfield.class)).collect(Collectors.toList()));
+                                    logbook.success("解析TRANSFORMFIELD节点");
+                                });
+                                //设置转换的属性信息
+                                useChildren(transformationE,"TABLEATTRIBUTE",tableattributesE->{
+                                    transformation.setTableattributes(tableattributesE.stream().map(element -> convertToBean(element, Transformation.Tableattribute.class)).collect(Collectors.toList()));
+                                    logbook.success("解析TABLEATTRIBUTE节点");
+                                });
+                                return transformation;
+                            }).collect(Collectors.toList()));
+                            logbook.success("解析TRANSFORMATION节点");
+                        });
 
-                    //解析INSTANCE节点
-                    useChildren(mappingE,"INSTANCE",instancesE->{
-                        mapping.setInstances(instancesE.stream().map(element -> convertToBean(element, Instance.class)).collect(Collectors.toList()));
-                        logbook.success("解析INSTANCE节点");
-                    });
+                        //解析INSTANCE节点
+                        useChildren(mappingE,"INSTANCE",instancesE->{
+                            mapping.setInstances(instancesE.stream().map(element -> convertToBean(element, Instance.class)).collect(Collectors.toList()));
+                            logbook.success("解析INSTANCE节点");
+                        });
 
-                    //解析CONNECTOR节点
-                    useChildren(mappingE,"CONNECTOR",connectorsE->{
-                        mapping.setConnectors(connectorsE.stream().map(element -> convertToBean(element, Connector.class)).collect(Collectors.toList()));
-                        logbook.success("解析CONNECTOR节点");
-                    });
+                        //解析CONNECTOR节点
+                        useChildren(mappingE,"CONNECTOR",connectorsE->{
+                            mapping.setConnectors(connectorsE.stream().map(element -> convertToBean(element, Connector.class)).collect(Collectors.toList()));
+                            logbook.success("解析CONNECTOR节点");
+                        });
+                        return mapping;
+                    }).collect(Collectors.toList()));
 
                 });
             });
