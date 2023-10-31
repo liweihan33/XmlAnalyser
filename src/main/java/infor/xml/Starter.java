@@ -30,6 +30,9 @@ public class Starter {
 
         Path sourcePath;
         Path outputPath;
+        args=new String[2];
+        args[0]="D:\\Code\\IdeaProjects\\XmlAnalyser\\一些XML";
+        args[1]="D:\\Code\\IdeaProjects\\XmlAnalyser\\output";
         if(args.length==0){
             System.out.println("缺少启动参数：java -jar jarfile 源文件夹 输出文件夹");
             return;
@@ -50,12 +53,35 @@ public class Starter {
             Files.createDirectories(outputPath);
         }
 
+        convertXMLToJSON(sourcePath,outputPath);
+
         //convertToJson(sourcePath,outputPath);
 
-        analyseCurrentSituation(sourcePath,outputPath);
+        //analyseCurrentSituation(sourcePath,outputPath);
 
         System.out.println("执行完毕，结果输出至："+outputPath);
 
+    }
+
+    public static void convertXMLToJSON(Path sourcePath,Path outputPath) throws IOException {
+        //开始处理
+        AtomicInteger counter=new AtomicInteger();
+        List<Folder> folders=Files.list(sourcePath).filter(path->path.toString().toLowerCase().endsWith(".xml")).map(path->{
+            try {
+                System.out.println(counter.incrementAndGet()+"：正在解析文件 "+path);
+                MappingAnalyser mappingAnalyser=new MappingAnalyser(Files.newInputStream(path));
+                mappingAnalyser.setContinueError(true);
+                MappingAnalyser.Result result=mappingAnalyser.analyse();
+                return result;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).filter(Objects::nonNull).map(item->item.getFolder()).collect(Collectors.toList());
+        System.out.println("所有文件解析完毕。");
+        String json=new Gson().toJson(folders);
+        System.out.println(json);
+        outputJsonToFile(outputPath+File.separator+"mapping.json",json);
     }
 
     /**
